@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Диkта 🦊</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Nunito', sans-serif; background: #FFFBF5; }
+.screen { display: none; min-height: 100vh; }
+.screen.active { display: flex; flex-direction: column; }
+@keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+@keyframes pop { 0% { transform:scale(0.8); opacity:0; } 60% { transform:scale(1.1); } 100% { transform:scale(1); opacity:1; } }
+@keyframes bounce { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+@keyframes dance { 0%,100% { transform:rotate(-8deg); } 50% { transform:rotate(8deg) translateY(-6px); } }
+@keyframes sad { 0%,100% { transform:translateY(0) rotate(0); } 50% { transform:translateY(4px) rotate(-4deg); } }
+@keyframes celebrate { 0%,100% { transform:translateY(0) scale(1); } 25%,75% { transform:translateY(-16px) scale(1.15); } 50% { transform:translateY(-20px) scale(1.2) rotate(5deg); } }
+@keyframes think { 0%,100% { transform:rotate(0); } 40% { transform:rotate(-6deg) translateY(-3px); } 70% { transform:rotate(6deg) translateY(-3px); } }
+.f-bounce { animation: bounce 2s ease-in-out infinite; }
+.f-dance { animation: dance 0.5s ease-in-out infinite; }
+.f-sad { animation: sad 2s ease-in-out infinite; }
+.f-celebrate { animation: celebrate 0.6s ease-in-out infinite; }
+.f-think { animation: think 3s ease-in-out infinite; }
+.foksy { object-fit: contain; display: block; }
+
+#screen-home {
+  background: linear-gradient(160deg, #FFF7ED, #FFEDD5 60%, #FEF3C7);
+  align-items: center; justify-content: center; padding: 32px 24px;
+}
+.home-wrap { text-align: center; max-width: 460px; width: 100%; animation: fadeUp 0.6s ease; }
+.big-title { font-family: 'Fredoka', sans-serif; font-size: 58px; color: #F97316; line-height: 1; margin: 8px 0 4px; }
+
+#screen-login, #screen-register {
+  background: linear-gradient(160deg, #FFF7ED, #FFEDD5);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.card { background: #fff; border-radius: 28px; padding: 36px 32px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(249,115,22,0.12); animation: fadeUp 0.5s ease; }
+.card-title { font-family: 'Fredoka', sans-serif; font-size: 30px; color: #F97316; text-align: center; margin: 10px 0 22px; }
+input.field {
+  width: 100%; padding: 14px 18px; border: 2.5px solid #FED7AA; border-radius: 14px;
+  font-size: 16px; margin-bottom: 12px; background: #FFFBF5; color: #292524;
+  font-family: 'Nunito', sans-serif; display: block;
+}
+input.field:focus { outline: none; border-color: #F97316; }
+.grade-row { display: flex; gap: 10px; margin-bottom: 20px; }
+.g-btn { flex:1; padding:12px; border:2.5px solid #FED7AA; border-radius:12px; background:#fff; color:#A8A29E; font-weight:800; font-size:17px; cursor:pointer; font-family:'Nunito',sans-serif; transition:all 0.2s; }
+.g-btn.on { border-color:#F97316; background:#FFF7ED; color:#F97316; }
+.err { background:#FFF1F2; border:1px solid #FECACA; border-radius:10px; padding:10px 14px; margin-bottom:14px; font-size:14px; color:#EF4444; font-weight:700; display:none; }
+.err.ok { background:#F0FDF4; border-color:#BBF7D0; color:#16A34A; display:block; }
+
+.btn { width:100%; padding:15px; border:none; border-radius:16px; font-size:17px; font-weight:800; cursor:pointer; font-family:'Fredoka',sans-serif; transition:all 0.2s; display:block; text-align:center; margin-bottom:10px; }
+.btn:hover { transform:translateY(-2px); }
+.btn.orange { background:#F97316; color:#fff; box-shadow:0 6px 20px rgba(249,115,22,0.4); }
+.btn.orange:hover { box-shadow:0 8px 28px rgba(249,115,22,0.5); }
+.btn.outline { background:#fff; border:2.5px solid #F97316; color:#F97316; }
+.btn.green { background:#16A34A; color:#fff; box-shadow:0 6px 20px rgba(22,163,74,0.35); }
+.btn.green:disabled { background:#D1FAE5; box-shadow:none; cursor:not-allowed; transform:none; }
+.btn.ghost { background:none; color:#A8A29E; font-size:14px; font-weight:600; font-family:'Nunito',sans-serif; }
+.btn.red-out { background:#FFF1F2; border:2px solid #FECACA; color:#EF4444; font-family:'Nunito',sans-serif; font-size:15px; }
+
+#screen-app { background:#FFFBF5; }
+.hdr { background:linear-gradient(135deg,#F97316,#EA580C); padding:18px 24px 22px; }
+.hdr-in { max-width:600px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; }
+.hdr-left { display:flex; align-items:center; gap:12px; }
+.hdr-logo { font-family:'Fredoka',sans-serif; font-size:22px; color:#fff; }
+.hdr-sub { font-size:13px; color:rgba(255,255,255,0.85); font-weight:600; }
+.badge { background:rgba(255,255,255,0.2); border-radius:20px; padding:7px 14px; display:flex; align-items:center; gap:6px; color:#fff; font-weight:800; font-size:15px; }
+.tabs-wrap { max-width:600px; margin:0 auto; padding:0 20px; }
+.tabs { display:flex; gap:4px; background:#FEF3C7; border-radius:12px; padding:4px; margin:14px 0; }
+.tab { flex:1; padding:9px 4px; border:none; border-radius:9px; font-weight:800; font-size:13px; cursor:pointer; font-family:'Nunito',sans-serif; background:transparent; color:#A8A29E; transition:all 0.2s; }
+.tab.on { background:#fff; color:#F97316; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+.tab-panel { display:none; animation:fadeUp 0.4s ease; }
+.tab-panel.on { display:block; }
+
+.msg-box { background:#fff; border-radius:20px; padding:16px 18px; margin-bottom:14px; display:flex; align-items:center; gap:14px; box-shadow:0 4px 14px rgba(0,0,0,0.05); }
+.msg-box h3 { font-family:'Fredoka',sans-serif; font-size:18px; color:#292524; margin-bottom:3px; }
+.msg-box p { font-size:13px; color:#78716C; }
+.streak-box { background:linear-gradient(135deg,#FFF7ED,#FFEDD5); border:2px solid #FED7AA; border-radius:18px; padding:12px 16px; margin-bottom:14px; display:none; align-items:center; gap:12px; }
+.streak-box h3 { font-family:'Fredoka',sans-serif; font-size:17px; color:#F97316; }
+.streak-box p { font-size:12px; color:#A8A29E; }
+.sec-title { font-family:'Fredoka',sans-serif; font-size:19px; color:#292524; margin-bottom:10px; }
+.d-card { background:#fff; border-radius:20px; padding:16px 20px; margin-bottom:10px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.05); border:2px solid transparent; transition:all 0.25s; display:flex; align-items:center; gap:12px; }
+.d-card:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(249,115,22,0.15); border-color:#F97316; }
+.d-icon { width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+.d-title { font-family:'Fredoka',sans-serif; font-size:18px; color:#292524; margin-bottom:3px; }
+.d-meta { font-size:12px; color:#A8A29E; font-weight:600; margin-bottom:5px; }
+.dots { display:flex; gap:3px; }
+.dot { width:16px; height:5px; border-radius:3px; background:#E7E5E4; }
+.dot.on { background:#F97316; }
+
+.stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:18px; }
+.stat { background:#fff; border-radius:18px; padding:16px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,0.05); }
+.stat-v { font-family:'Fredoka',sans-serif; font-size:26px; line-height:1; margin:6px 0 3px; }
+.stat-l { font-size:11px; color:#A8A29E; font-weight:700; }
+.h-item { background:#fff; border-radius:16px; padding:12px 16px; margin-bottom:8px; display:flex; align-items:center; gap:12px; box-shadow:0 2px 8px rgba(0,0,0,0.04); }
+.h-score { width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Fredoka',sans-serif; font-size:13px; font-weight:700; flex-shrink:0; }
+
+.s-card { background:#fff; border-radius:20px; padding:22px; box-shadow:0 4px 14px rgba(0,0,0,0.05); margin-bottom:14px; }
+.p-ava { width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,#F97316,#EA580C); display:flex; align-items:center; justify-content:center; font-family:'Fredoka',sans-serif; font-size:26px; color:#fff; flex-shrink:0; }
+.love-box { background:linear-gradient(135deg,#FFF7ED,#FFEDD5); border-radius:20px; padding:18px; border:2px solid #FED7AA; text-align:center; }
+.love-box h3 { font-family:'Fredoka',sans-serif; font-size:17px; color:#F97316; margin:8px 0 3px; }
+.love-box p { font-size:12px; color:#A8A29E; }
+
+#screen-dictation { background:#FFFBF5; }
+.d-hdr { background:#fff; border-bottom:2px solid #FEF3C7; padding:12px 18px; display:flex; align-items:center; gap:10px; }
+.d-hdr-t { font-family:'Fredoka',sans-serif; font-size:17px; color:#292524; }
+.d-hdr-s { font-size:11px; color:#A8A29E; font-weight:600; }
+.prog-bar { height:7px; background:#FEF3C7; }
+.prog-fill { height:100%; background:linear-gradient(90deg,#F97316,#EF4444); transition:width 0.5s; }
+.d-body { max-width:600px; margin:0 auto; padding:20px 18px; }
+.listen-card { background:#fff; border-radius:26px; padding:26px 22px; margin-bottom:18px; box-shadow:0 6px 22px rgba(249,115,22,0.1); text-align:center; }
+.listen-card h3 { font-family:'Fredoka',sans-serif; font-size:20px; color:#292524; margin:10px 0 5px; }
+.listen-card p { font-size:13px; color:#A8A29E; font-weight:600; margin-bottom:16px; }
+.sp-btns { display:flex; justify-content:center; gap:8px; margin-bottom:16px; }
+.sp-btn { padding:7px 16px; border:2px solid #FED7AA; border-radius:18px; background:#fff; color:#A8A29E; font-weight:800; font-size:13px; cursor:pointer; transition:all 0.2s; font-family:'Nunito',sans-serif; }
+.sp-btn.on { border-color:#F97316; background:#FFF7ED; color:#F97316; }
+.write-card { background:#fff; border-radius:22px; padding:18px; box-shadow:0 4px 14px rgba(0,0,0,0.05); }
+.write-card label { font-size:14px; color:#78716C; font-weight:700; display:block; margin-bottom:8px; }
+textarea.w-input { width:100%; padding:14px; border:2.5px solid #FED7AA; border-radius:16px; font-size:17px; line-height:1.6; resize:none; height:105px; background:#FFFBF5; color:#292524; font-family:'Nunito',sans-serif; display:block; }
+textarea.w-input:focus { outline:none; border-color:#F97316; }
+
+.r-card { background:#fff; border-radius:26px; padding:26px 22px; box-shadow:0 6px 22px rgba(0,0,0,0.07); text-align:center; animation:pop 0.4s ease; }
+.r-score { font-family:'Fredoka',sans-serif; font-size:56px; line-height:1; margin:6px 0; }
+.r-msg { font-size:17px; color:#78716C; font-weight:700; margin-bottom:14px; }
+.cmp { background:#FFFBF5; border-radius:14px; padding:12px; text-align:left; margin-bottom:12px; }
+.cmp-lbl { font-size:11px; color:#A8A29E; font-weight:700; margin-bottom:3px; }
+.cmp-txt { font-size:14px; font-weight:700; margin-bottom:8px; }
+.expl { background:#FFF7ED; border-radius:14px; padding:14px; text-align:left; margin-bottom:12px; }
+.expl h4 { font-family:'Fredoka',sans-serif; font-size:17px; color:#F97316; margin-bottom:8px; }
+.expl-item { margin-bottom:8px; font-size:13px; color:#292524; line-height:1.6; }
+
+#screen-result { background:linear-gradient(160deg,#FFF7ED,#FFEDD5); align-items:center; justify-content:center; padding:20px; }
+.fin-card { background:#fff; border-radius:30px; padding:36px 28px; max-width:460px; width:100%; text-align:center; box-shadow:0 20px 60px rgba(249,115,22,0.15); animation:pop 0.4s ease; }
+.fin-score { font-family:'Fredoka',sans-serif; font-size:76px; line-height:1; margin:6px 0; }
+.fin-stars { font-size:34px; margin:10px 0; }
+.fin-title { font-family:'Fredoka',sans-serif; font-size:24px; color:#292524; margin-bottom:5px; }
+.fin-streak { font-size:14px; color:#F97316; font-weight:800; margin-bottom:18px; display:none; }
+.mt10 { margin-top:10px; }
+.mt14 { margin-top:14px; }
+.pb40 { padding-bottom:40px; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="home-wrap">
+    <img id="h-fox" src="foxy.png" class="foksy f-dance" style="width:140px;height:140px;margin:0 auto 8px" alt="Фокси">
+    <h1 class="big-title">Диkта</h1>
+    <p style="font-size:19px;color:#78716C;font-weight:700;margin-bottom:4px">Здравей! Аз съм Фокси 🦊</p>
+    <p style="font-size:14px;color:#A8A29E;font-weight:600;margin-bottom:36px">Твоят приятел за диктовки и правопис</p>
+    <button class="btn orange" onclick="go('login')">Влез в играта! 🎯</button>
+    <button class="btn outline" onclick="go('register')">Създай профил 🌟</button>
+    <div style="display:flex;justify-content:center;gap:36px;margin-top:32px">
+      <div style="text-align:center"><div style="font-size:26px">📝</div><div style="font-size:12px;color:#A8A29E;font-weight:700;margin-top:3px">Диктовки</div></div>
+      <div style="text-align:center"><div style="font-size:26px">⚡</div><div style="font-size:12px;color:#A8A29E;font-weight:700;margin-top:3px">Бързо учене</div></div>
+      <div style="text-align:center"><div style="font-size:26px">🏆</div><div style="font-size:12px;color:#A8A29E;font-weight:700;margin-top:3px">Награди</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN -->
+<div id="screen-login" class="screen">
+  <div class="card" style="margin:auto">
+    <div style="text-align:center">
+      <img src="foxy.png" class="foksy f-bounce" style="width:86px;height:86px;margin:0 auto" alt="Фокси">
+      <div class="card-title">Добре дошъл!</div>
+    </div>
+    <input class="field" id="li-email" type="email" placeholder="Имейл">
+    <input class="field" id="li-pass" type="password" placeholder="Парола">
+    <div class="err" id="li-err"></div>
+    <button class="btn orange" id="li-btn" onclick="doLogin()">Влез! 🎯</button>
+    <button class="btn ghost" onclick="go('register')">Нямам акаунт — регистрирай ме!</button>
+    <button class="btn ghost" onclick="go('home')" style="color:#C4B5A5">← Начало</button>
+  </div>
+</div>
+
+<!-- REGISTER -->
+<div id="screen-register" class="screen">
+  <div class="card" style="margin:auto">
+    <div style="text-align:center">
+      <img src="foxy.png" class="foksy f-bounce" style="width:86px;height:86px;margin:0 auto" alt="Фокси">
+      <div class="card-title">Регистрация</div>
+    </div>
+    <input class="field" id="rg-name" type="text" placeholder="Твоето име">
+    <input class="field" id="rg-email" type="email" placeholder="Имейл">
+    <input class="field" id="rg-pass" type="password" placeholder="Парола">
+    <div style="font-size:13px;color:#78716C;font-weight:700;margin-bottom:8px">В кой клас си?</div>
+    <div class="grade-row">
+      <button class="g-btn on" id="g3" onclick="pickGrade(3)">3 клас</button>
+      <button class="g-btn" id="g4" onclick="pickGrade(4)">4 клас</button>
+    </div>
+    <div class="err" id="rg-err"></div>
+    <button class="btn orange" id="rg-btn" onclick="doRegister()">Регистрирай се! 🚀</button>
+    <button class="btn ghost" onclick="go('login')">Вече имам акаунт</button>
+    <button class="btn ghost" onclick="go('home')" style="color:#C4B5A5">← Начало</button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="screen-app" class="screen">
+  <div class="hdr">
+    <div class="hdr-in">
+      <div class="hdr-left">
+        <img src="foxy.png" class="foksy f-bounce" style="width:48px;height:48px" alt="Фокси">
+        <div>
+          <div class="hdr-logo">Диkта</div>
+          <div class="hdr-sub" id="hdr-name">Здравей!</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="badge">🔥 <span id="hdr-streak">0</span></div>
+        <button onclick="doLogout()" style="background:rgba(255,255,255,0.15);border:none;border-radius:12px;padding:7px 13px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;font-family:'Nunito',sans-serif">Изход</button>
+      </div>
+    </div>
+  </div>
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab on" onclick="switchTab(this,'t-dicts')">📝 Диктовки</button>
+      <button class="tab" onclick="switchTab(this,'t-prog')">📊 Прогрес</button>
+      <button class="tab" onclick="switchTab(this,'t-set')">⚙️ Настройки</button>
+    </div>
+
+    <div id="t-dicts" class="tab-panel on pb40">
+      <div id="streak-bar" class="streak-box">
+        <span style="font-size:30px">🔥</span>
+        <div><h3 id="streak-txt"></h3><p>Фокси е горд! Продължавай!</p></div>
+      </div>
+      <div class="msg-box">
+        <img src="foxy.png" class="foksy f-bounce" style="width:62px;height:62px;flex-shrink:0" alt="Фокси">
+        <div><h3>Готов ли си? 🎯</h3><p>Избери диктовка и аз ще ти чета изреченията!</p></div>
+      </div>
+      <div class="sec-title" id="dicts-hd">Диктовки 📚</div>
+      <div id="dicts-list"></div>
+    </div>
+
+    <div id="t-prog" class="tab-panel pb40">
+      <div class="stats">
+        <div class="stat"><div style="font-size:26px">📝</div><div class="stat-v" id="s-total" style="color:#F97316">0</div><div class="stat-l">Диктовки</div></div>
+        <div class="stat"><div style="font-size:26px">⭐</div><div class="stat-v" id="s-avg" style="color:#16A34A">0%</div><div class="stat-l">Среден резултат</div></div>
+        <div class="stat"><div style="font-size:26px">🔥</div><div class="stat-v" id="s-streak" style="color:#EF4444">0</div><div class="stat-l">Поредица</div></div>
+        <div class="stat"><div style="font-size:26px">🎓</div><div class="stat-v" id="s-grade" style="color:#8B5CF6">3</div><div class="stat-l">Клас</div></div>
+      </div>
+      <div class="sec-title">Последни диктовки 📋</div>
+      <div id="hist-list"></div>
+    </div>
+
+    <div id="t-set" class="tab-panel pb40">
+      <div class="s-card">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">
+          <div class="p-ava" id="p-ava">П</div>
+          <div>
+            <div style="font-family:'Fredoka',sans-serif;font-size:20px;color:#292524" id="p-name">-</div>
+            <div style="font-size:13px;color:#A8A29E;font-weight:600" id="p-email">-</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#78716C;font-weight:700;margin-bottom:8px">Промени клас:</div>
+        <div class="grade-row" style="margin-bottom:14px">
+          <button class="g-btn" id="sg3" onclick="setGrade(3)">3 клас</button>
+          <button class="g-btn" id="sg4" onclick="setGrade(4)">4 клас</button>
+        </div>
+        <button class="btn red-out" onclick="doLogout()">Изход 👋</button>
+      </div>
+      <div class="love-box">
+        <img src="foxy.png" class="foksy f-dance" style="width:66px;height:66px;margin:0 auto" alt="Фокси">
+        <h3>Фокси те обича! 🦊</h3>
+        <p>Практикувай всеки ден за най-добри резултати</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DICTATION -->
+<div id="screen-dictation" class="screen">
+  <div class="d-hdr">
+    <button onclick="exitDict()" style="background:#FFF7ED;border:none;border-radius:10px;padding:7px 14px;color:#F97316;font-weight:800;font-size:13px;cursor:pointer;font-family:'Nunito',sans-serif;flex-shrink:0">← Назад</button>
+    <div style="flex:1;margin:0 10px">
+      <div class="d-hdr-t" id="d-theme">Диктовка</div>
+      <div class="d-hdr-s" id="d-prog">Изречение 1 от 3</div>
+    </div>
+    <img src="foxy.png" id="d-fox" class="foksy f-think" style="width:42px;height:42px" alt="Фокси">
+  </div>
+  <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+  <div class="d-body">
+
+    <div id="p-listen" class="listen-card">
+      <img src="foxy.png" id="lf" class="foksy f-think" style="width:96px;height:96px;margin:0 auto" alt="Фокси">
+      <h3>Слушай внимателно! 👂</h3>
+      <p>Натисни бутона за да чуеш изречението</p>
+      <div class="sp-btns">
+        <button class="sp-btn" onclick="setSpd(0.7,this)">×0.7</button>
+        <button class="sp-btn on" onclick="setSpd(1.0,this)">×1.0</button>
+        <button class="sp-btn" onclick="setSpd(1.2,this)">×1.2</button>
+      </div>
+      <button class="btn orange" id="spk-btn" onclick="speakNow()" style="width:auto;padding:14px 32px;display:inline-block">🔊 Прочети ми!</button>
+    </div>
+
+    <div id="p-write" class="write-card" style="display:none">
+      <label>✏️ Напиши изречението:</label>
+      <textarea class="w-input" id="w-inp" oninput="chkBtn()" placeholder="Пиши тук..."></textarea>
+      <button class="btn green mt14" id="chk-btn" onclick="checkNow()" disabled>Проверете! ✅</button>
+    </div>
+
+    <div id="p-result" class="r-card" style="display:none">
+      <img src="foxy.png" id="rf" class="foksy" style="width:106px;height:106px;margin:0 auto" alt="Фокси">
+      <div class="r-score" id="r-sc">100%</div>
+      <div class="r-msg" id="r-msg">Браво!</div>
+      <div class="cmp">
+        <div class="cmp-lbl">ПРАВИЛНО:</div>
+        <div class="cmp-txt" id="r-ok" style="color:#16A34A"></div>
+        <div class="cmp-lbl">НАПИСАЛ СИ:</div>
+        <div class="cmp-txt" id="r-got"></div>
+      </div>
+      <button id="expl-btn" onclick="toggleExpl()" style="background:#FFF7ED;border:2px solid #FED7AA;border-radius:12px;padding:9px 18px;color:#F97316;font-weight:800;font-size:13px;cursor:pointer;margin-bottom:12px;font-family:'Nunito',sans-serif;display:none">🦊 Фокси обяснява защо</button>
+      <div id="expl-box" class="expl" style="display:none">
+        <h4>Фокси казва: 🦊</h4>
+        <div id="expl-cont"></div>
+      </div>
+      <button class="btn orange mt10" id="nxt-btn" onclick="nextSent()">Следващо →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="screen-result" class="screen">
+  <div class="fin-card">
+    <img src="foxy.png" id="fin-fox" class="foksy f-celebrate" style="width:120px;height:120px;margin:0 auto" alt="Фокси">
+    <div class="fin-score" id="fin-sc">100%</div>
+    <div class="fin-stars" id="fin-stars">⭐⭐⭐</div>
+    <div class="fin-title" id="fin-title">Невероятно!</div>
+    <div class="fin-streak" id="fin-streak"></div>
+    <button class="btn orange mt14" onclick="retry()">Опитай пак! 🔄</button>
+    <button class="btn outline mt10" onclick="go('app')">Избери друга диктовка</button>
+  </div>
+</div>
+
+<script>
+const SB = "https://gilfpdosfdiolvrwsnkz.supabase.co";
+const KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpbGZwZG9zZmRpb2x2cndzbmt6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1MDY2OTksImV4cCI6MjA5MTA4MjY5OX0.-ztgrdn4HJcCNt5kVVQah2O3rDoEsBHLw0AzTazybjM";
+
+const DICTS = [
+  {id:"d1",grade:3,theme:"Природа",diff:1,icon:"🌿",col:"#4CAF50",s:["Слънцето грее ярко на небето.","Птиците пеят весело в гората.","Децата играят на поляната."]},
+  {id:"d2",grade:3,theme:"Семейство",diff:1,icon:"👨‍👩‍👧",col:"#FF8B94",s:["Мама приготвя вкусна вечеря.","Татко чете книга на дивана.","Сестра ми рисува красиви картини."]},
+  {id:"d3",grade:3,theme:"Животни",diff:2,icon:"🐾",col:"#FF9800",s:["Котката спи на топлото одеяло.","Кучето тича из двора.","Птичката пее на прозореца."]},
+  {id:"d4",grade:4,theme:"Природа",diff:1,icon:"🌸",col:"#4CAF50",s:["Пролетта пристига с топли ветрове.","Цветята разцъфтяват в градината.","Реката тече бавно към морето."]},
+  {id:"d5",grade:4,theme:"Семейство",diff:2,icon:"🏠",col:"#9C27B0",s:["Семейството се събра около масата.","Дядо разказва интересни истории.","Всички се смеят и се радват заедно."]},
+  {id:"d6",grade:4,theme:"Училище",diff:2,icon:"🏫",col:"#2196F3",s:["Учителката обяснява новия урок внимателно.","Учениците пишат в тетрадките си.","След часа децата излизат на двора."]},
+];
+
+let sess=null, prof=null, streak=0, hist=[];
+let dict=null, si=0, results=[], spd=1.0, curRes=null, finSc=0, explOn=false;
+
+async function api(path,opts={},tok){
+  const r=await fetch(`${SB}/rest/v1/${path}`,{headers:{apikey:KEY,Authorization:`Bearer ${tok||KEY}`,"Content-Type":"application/json",Prefer:opts.prefer||"return=representation"},...opts});
+  const t=await r.text(); return t?JSON.parse(t):null;
+}
+async function auth(path,body){
+  const r=await fetch(`${SB}/auth/v1/${path}`,{method:"POST",headers:{apikey:KEY,"Content-Type":"application/json"},body:JSON.stringify(body)});
+  const d=await r.json(); if(!r.ok)throw new Error(d.error_description||d.msg||"Грешка"); return d;
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+}
+
+function err(id,msg,ok=false){
+  const e=document.getElementById(id);
+  e.textContent=msg; e.style.display=msg?'block':'none';
+  e.className='err'+(ok?' ok':'');
+}
+
+function pickGrade(g){
+  document.getElementById('g3').className='g-btn'+(g==3?' on':'');
+  document.getElementById('g4').className='g-btn'+(g==4?' on':'');
+}
+
+async function doLogin(){
+  const em=document.getElementById('li-email').value.trim();
+  const pw=document.getElementById('li-pass').value;
+  if(!em||!pw){err('li-err','Въведете имейл и парола.');return;}
+  const btn=document.getElementById('li-btn');
+  btn.textContent='⏳...'; btn.disabled=true; err('li-err','');
+  try{
+    const d=await auth('token?grant_type=password',{email:em.toLowerCase(),password:pw});
+    localStorage.setItem('ds',JSON.stringify(d)); sess=d;
+    await loadProf(d.user.id,d.access_token);
+  }catch(e){err('li-err','Грешен имейл или парола.');}
+  finally{btn.textContent='Влез! 🎯';btn.disabled=false;}
+}
+
+async function doRegister(){
+  const nm=document.getElementById('rg-name').value.trim();
+  const em=document.getElementById('rg-email').value.trim();
+  const pw=document.getElementById('rg-pass').value;
+  const gr=document.getElementById('g3').classList.contains('on')?'3':'4';
+  if(!nm||!em||!pw){err('rg-err','Всички полета са задължителни.');return;}
+  const btn=document.getElementById('rg-btn');
+  btn.textContent='⏳...'; btn.disabled=true; err('rg-err','');
+  try{
+    const d=await auth('signup',{email:em.toLowerCase(),password:pw,data:{name:nm}});
+    const uid=d.user?.id;
+    await api('profiles',{method:'POST',prefer:'return=minimal',body:JSON.stringify({id:uid,email:em.toLowerCase(),name:nm,grade:gr,streak_count:0,is_admin:false,approved:true})},KEY);
+    if(d.access_token){
+      localStorage.setItem('ds',JSON.stringify(d)); sess=d;
+      await loadProf(uid,d.access_token);
+    }else{err('rg-err','✅ Потвърди имейла си и влез!',true);}
+  }catch(e){err('rg-err',e.message||'Грешка');}
+  finally{btn.textContent='Регистрирай се! 🚀';btn.disabled=false;}
+}
+
+async function loadProf(uid,tok){
+  try{
+    const rows=await api(`profiles?id=eq.${uid}&select=*`,{method:'GET'},tok);
+    if(rows?.[0]){prof=rows[0];streak=prof.streak_count||0;renderApp();go('app');loadHist();}
+    else go('login');
+  }catch(_){go('login');}
+}
+
+function doLogout(){
+  localStorage.removeItem('ds');sess=null;prof=null;streak=0;hist=[];go('home');
+}
+
+function renderApp(){
+  const n=prof.name.split(' ')[0];
+  document.getElementById('hdr-name').textContent=`Здравей, ${n}! · ${prof.grade} клас`;
+  document.getElementById('hdr-streak').textContent=streak;
+  document.getElementById('dicts-hd').textContent=`Диктовки за ${prof.grade} клас 📚`;
+  if(streak>0){
+    const sb=document.getElementById('streak-bar');
+    sb.style.display='flex';
+    document.getElementById('streak-txt').textContent=`${streak} поредни диктовки!`;
+  }
+  document.getElementById('p-ava').textContent=prof.name[0];
+  document.getElementById('p-name').textContent=prof.name;
+  document.getElementById('p-email').textContent=prof.email;
+  const g=prof.grade;
+  document.getElementById('sg3').className='g-btn'+(g==='3'?' on':'');
+  document.getElementById('sg4').className='g-btn'+(g==='4'?' on':'');
+  renderDicts();
+}
+
+function renderDicts(){
+  const grade=parseInt(prof.grade);
+  let html='';
+  DICTS.filter(d=>d.grade===grade).forEach(d=>{
+    const dots=Array.from({length:5}).map((_,j)=>`<div class="dot${j<d.diff?' on':''}"></div>`).join('');
+    html+=`<div class="d-card" onclick="startDict('${d.id}')">
+      <div class="d-icon" style="background:${d.col}22">${d.icon}</div>
+      <div style="flex:1">
+        <div class="d-title">${d.theme}</div>
+        <div class="d-meta">${d.s.length} изречения · трудност ${d.diff}/5</div>
+        <div class="dots">${dots}</div>
+      </div>
+      <div style="font-size:20px;color:#FED7AA">→</div>
+    </div>`;
+  });
+  document.getElementById('dicts-list').innerHTML=html;
+}
+
+async function loadHist(){
+  if(!sess)return;
+  try{
+    const rows=await api(`dictation_sessions?child_id=eq.${prof.id}&select=*&order=completed_at.desc&limit=10`,{method:'GET'},sess.access_token);
+    if(rows)hist=rows;
+  }catch(_){}
+}
+
+function switchTab(btn,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById(id).classList.add('on');
+  if(id==='t-prog')renderProg();
+}
+
+function renderProg(){
+  const avg=hist.length>0?Math.round(hist.reduce((a,h)=>a+(h.score||0),0)/hist.length):0;
+  document.getElementById('s-total').textContent=hist.length;
+  document.getElementById('s-avg').textContent=avg+'%';
+  document.getElementById('s-streak').textContent=streak+' 🔥';
+  document.getElementById('s-grade').textContent=prof.grade+' клас';
+  const list=document.getElementById('hist-list');
+  if(!hist.length){list.innerHTML=`<div style="background:#fff;border-radius:18px;padding:28px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,0.05)"><img src="foxy.png" style="width:70px;height:70px;object-fit:contain;display:block;margin:0 auto 10px" alt="Фокси"><div style="font-family:'Fredoka',sans-serif;font-size:17px;color:#78716C">Все още няма диктовки!</div></div>`;return;}
+  list.innerHTML=hist.map(h=>{
+    const d=DICTS.find(x=>x.id===h.dictation_id);
+    const c=h.score>=80?'#DCFCE7':h.score>=50?'#FFF7ED':'#FFF1F2';
+    const tc=h.score>=80?'#16A34A':h.score>=50?'#F97316':'#EF4444';
+    const em=h.score>=80?'🌟':h.score>=60?'👍':'💪';
+    const dt=new Date(h.completed_at).toLocaleDateString('bg-BG');
+    return `<div class="h-item"><div class="h-score" style="background:${c};color:${tc}">${h.score}%</div><div style="flex:1"><div style="font-weight:800;font-size:13px;color:#292524">${d?.theme||'Диктовка'}</div><div style="font-size:11px;color:#A8A29E">${dt}</div></div><div style="font-size:18px">${em}</div></div>`;
+  }).join('');
+}
+
+async function setGrade(g){
+  if(!sess||!prof)return;
+  await api(`profiles?id=eq.${prof.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({grade:String(g)})},sess.access_token);
+  prof.grade=String(g);
+  document.getElementById('sg3').className='g-btn'+(g==3?' on':'');
+  document.getElementById('sg4').className='g-btn'+(g==4?' on':'');
+  document.getElementById('hdr-name').textContent=`Здравей, ${prof.name.split(' ')[0]}! · ${g} клас`;
+  document.getElementById('dicts-hd').textContent=`Диктовки за ${g} клас 📚`;
+  renderDicts();
+}
+
+// ── Dictation ──
+function startDict(id){
+  dict=DICTS.find(d=>d.id===id);si=0;results=[];
+  document.getElementById('d-theme').textContent=dict.theme;
+  updProg(); showListen(); go('dictation');
+  setTimeout(speakNow,500);
+}
+
+function updProg(){
+  document.getElementById('d-prog').textContent=`Изречение ${si+1} от ${dict.s.length}`;
+  document.getElementById('prog-fill').style.width=((si/dict.s.length)*100)+'%';
+}
+
+function showListen(){
+  document.getElementById('p-listen').style.display='block';
+  document.getElementById('p-write').style.display='none';
+  document.getElementById('p-result').style.display='none';
+  setAnim('lf','think'); setAnim('d-fox','bounce');
+}
+
+function setAnim(id,mood){
+  const el=document.getElementById(id); if(!el)return;
+  el.className=`foksy f-${mood}`;
+}
+
+function setSpd(s,btn){
+  spd=s;
+  document.querySelectorAll('.sp-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+
+function speakNow(){
+  if(!dict||!window.speechSynthesis)return;
+  window.speechSynthesis.cancel();
+  const btn=document.getElementById('spk-btn');
+  btn.textContent='🔊 Слушам...'; btn.disabled=true;
+  const u=new SpeechSynthesisUtterance(dict.s[si]);
+  u.lang='bg-BG'; u.rate=spd;
+  u.onend=()=>{
+    btn.textContent='🔊 Прочети ми!'; btn.disabled=false;
+    document.getElementById('p-listen').style.display='none';
+    document.getElementById('p-write').style.display='block';
+    document.getElementById('w-inp').value='';
+    document.getElementById('chk-btn').disabled=true;
+    document.getElementById('w-inp').focus();
+  };
+  window.speechSynthesis.speak(u);
+}
+
+function chkBtn(){
+  document.getElementById('chk-btn').disabled=!document.getElementById('w-inp').value.trim();
+}
+
+function checkNow(){
+  const got=document.getElementById('w-inp').value.trim(); if(!got)return;
+  const exp=dict.s[si];
+  const {errors,score}=diff(exp,got);
+  curRes={exp,got,errors,score}; results.push(curRes);
+  showRes(curRes);
+}
+
+function diff(exp,act){
+  const ew=exp.replace(/[.,!?]/g,'').toLowerCase().split(' ');
+  const aw=act.replace(/[.,!?]/g,'').toLowerCase().split(' ');
+  const errors=[]; const ml=Math.max(ew.length,aw.length);
+  for(let i=0;i<ml;i++){const e=ew[i]||'',a=aw[i]||'';if(e!==a)errors.push({e,a});}
+  const score=Math.max(0,Math.round(((ew.length-errors.length)/ew.length)*100));
+  return{errors,score};
+}
+
+function showRes(res){
+  document.getElementById('p-listen').style.display='none';
+  document.getElementById('p-write').style.display='none';
+  document.getElementById('p-result').style.display='block';
+  document.getElementById('r-sc').textContent=res.score+'%';
+  document.getElementById('r-sc').style.color=res.score>=80?'#16A34A':res.score>=50?'#F97316':'#EF4444';
+  document.getElementById('r-ok').textContent=res.exp;
+  document.getElementById('r-got').textContent=res.got;
+  document.getElementById('r-got').style.color=res.score>=80?'#16A34A':'#EF4444';
+  const mood=res.score>=80?'celebrate':res.score>=50?'think':'sad';
+  setAnim('rf',mood); setAnim('d-fox',mood);
+  const msgs={celebrate:'Браво! Фокси е горд! 🎉',think:'Почти! Продължавай! 💪',sad:'Не се отказвай! Аз вярвам в теб! 🦊'};
+  document.getElementById('r-msg').textContent=msgs[mood];
+  explOn=false;
+  document.getElementById('expl-box').style.display='none';
+  document.getElementById('expl-btn').style.display=res.errors.length?'inline-block':'none';
+  document.getElementById('expl-btn').textContent='🦊 Фокси обяснява защо';
+  const last=si>=dict.s.length-1;
+  document.getElementById('nxt-btn').textContent=last?'Виж резултата! 🏆':'Следващо изречение →';
+  if(last)saveFinal();
+}
+
+async function saveFinal(){
+  const avg=Math.round(results.reduce((a,r)=>a+r.score,0)/results.length);
+  finSc=avg;
+  const ns=avg>=60?streak+1:0; streak=ns;
+  document.getElementById('hdr-streak').textContent=streak;
+  if(sess&&prof){
+    await api(`profiles?id=eq.${prof.id}`,{method:'PATCH',prefer:'return=minimal',body:JSON.stringify({streak_count:ns})},sess.access_token);
+    await api('dictation_sessions',{method:'POST',prefer:'return=minimal',body:JSON.stringify({child_id:prof.id,dictation_id:dict.id,score:avg,input_text:results[results.length-1].got,expected_text:results[results.length-1].exp,errors:JSON.stringify(results)})},sess.access_token);
+    loadHist();
+  }
+}
+
+function toggleExpl(){
+  explOn=!explOn;
+  document.getElementById('expl-box').style.display=explOn?'block':'none';
+  document.getElementById('expl-btn').textContent=explOn?'Скрий':'🦊 Фокси обяснява защо';
+  if(explOn&&curRes){
+    document.getElementById('expl-cont').innerHTML=curRes.errors.map(e=>`
+      <div class="expl-item">
+        <span style="color:#EF4444;font-weight:800">"${e.a||'пропуснато'}"</span> → 
+        <span style="color:#16A34A;font-weight:800">"${e.e}"</span>
+        <div style="color:#78716C;margin-top:2px">${e.e===''?'Тази дума е излишна.':e.a===''?`Пропусна думата "${e.e}".`:`Правилното изписване е "${e.e}".`}</div>
+      </div>`).join('');
+  }
+}
+
+function nextSent(){
+  if(si>=dict.s.length-1){showFinal();return;}
+  si++; updProg(); showListen(); setTimeout(speakNow,300);
+}
+
+function showFinal(){
+  const stars=finSc>=90?'⭐⭐⭐':finSc>=70?'⭐⭐':finSc>=50?'⭐':'';
+  document.getElementById('fin-sc').textContent=finSc+'%';
+  document.getElementById('fin-sc').style.color=finSc>=70?'#16A34A':'#F97316';
+  document.getElementById('fin-stars').textContent=stars;
+  const t=finSc>=90?'Невероятно! 🎉':finSc>=70?'Отлично! 👏':finSc>=50?'Добра работа! 💪':'Не се отказвай! 🦊';
+  document.getElementById('fin-title').textContent=t;
+  const fs=document.getElementById('fin-streak');
+  if(streak>0){fs.textContent=`🔥 ${streak} поредни диктовки!`;fs.style.display='block';}
+  setAnim('fin-fox',finSc>=70?'celebrate':'think');
+  go('result');
+}
+
+function retry(){startDict(dict.id);}
+function exitDict(){window.speechSynthesis?.cancel();go('app');}
+
+// Init
+window.addEventListener('load',()=>{
+  const s=localStorage.getItem('ds');
+  if(s){try{sess=JSON.parse(s);loadProf(sess.user.id,sess.access_token);}catch(_){}}
+});
+</script>
+</body>
+</html>
